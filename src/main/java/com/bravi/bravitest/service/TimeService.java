@@ -5,5 +5,5 @@ import org.springframework.stereotype.Service;
 @Service
 public interface TimeService {
 
-	public String convertTime(String time);
+	public String convertTime(String time, Boolean format) throws Exception;
 }

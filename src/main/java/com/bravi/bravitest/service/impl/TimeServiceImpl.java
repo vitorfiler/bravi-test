@@ -77,29 +77,29 @@ public class TimeServiceImpl implements TimeService{
 	private static final String TO = "to ";
 	
 	 
-	public String convertTime(String time) {
+	public String convertTime(String time, Boolean format) throws Exception {
 		
-		String[] splitTime = time.split(":");
-		Integer hour = Integer.valueOf(splitTime[0]);
-		Integer minute = Integer.valueOf(splitTime[1]);
+		try {			
+			String[] splitTime = time.split(":");
+			int hour = Integer.parseInt(splitTime[0]);
+			int minute = Integer.parseInt(splitTime[1]);
 		
-		String hourComplete = hour.toString() + ":" + minute.toString(); 
 		
-		return validateSentence(hour, minute, hourComplete);
+		return validateSentence(hour, minute, time);
+		} catch (Exception e) {
+			throw new Exception(e);
+		}
 	}
 	
-	private String validateSentence(Integer hour, Integer minute, String hourComplete) {
-		String half = " half ";
-		String quarter = " quarter ";
-		
-		if(minute>59)return "invalid";
+	private String validateSentence(int hour, int minute, String hourComplete) {
+
+		if(minute>59 || hour>23)return "invalid hour";
 		String minutes = (60 - minute) >1? " minutes ": " minute ";
 		String sentence = minute == 0 ? numNames[hour]+ OCLOCK : minute >= 1 && minute <= 30 ? numNames[minute]+ minutes + PAST + numNames[hour] : numNames[60 - minute]+ minutes + TO + numNames[hour+1];
-		
-		if(minute == 15 || minute == 45 || minute == 30) {
-			sentence = minute == 15 ? quarter + PAST + numNames[hour] : minute == 45 ? quarter + TO + numNames[hour+1] : half + PAST + numNames[hour];	
-		};
-		
+		if(minute == 15 || minute == 45 || minute == 30) {			
+			sentence = minute == 15 ? " quarter " + PAST + numNames[hour] : minute == 45 ? " quarter " + TO + numNames[hour+1] : " half " + PAST + numNames[hour];	
+		}
+
 		return hourComplete + " ->" + sentence;
 	}
 }
