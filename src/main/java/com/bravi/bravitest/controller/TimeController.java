@@ -22,9 +22,8 @@ public class TimeController {
 	private TimeService timeService;
 	
 	@RequestMapping(value = "/time", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<String> convertTime(@RequestParam(value="time") String time,
-											  @RequestParam(value="format") Boolean format) throws Exception{
-		time = timeService.convertTime(time, format);
+	public ResponseEntity<String> convertTime(@RequestParam(value="time") String time) throws Exception{
+		time = timeService.convertTime(time);
 		return new ResponseEntity<String>(time, HttpStatus.OK);
 	}
 	

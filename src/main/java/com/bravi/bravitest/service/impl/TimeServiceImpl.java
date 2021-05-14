@@ -1,7 +1,7 @@
 package com.bravi.bravitest.service.impl;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Component;
 
@@ -10,7 +10,7 @@ import com.bravi.bravitest.service.TimeService;
 @Component("TimeController")
 public class TimeServiceImpl implements TimeService{
 	private static final String[] numNames = {
-			"",
+			" midnight",
 		    " one",
 		    " two",
 		    " three",
@@ -72,34 +72,51 @@ public class TimeServiceImpl implements TimeService{
 		    " fifty-nine",
 	};
 	
-	private static final String OCLOCK = " o' clock ";
-	private static final String PAST = "past ";
-	private static final String TO = "to ";
-	
+	private static final String OCLOCK = " o' clock";
+	private static final String PAST = "past";
+	private static final String TO = "to";
+	static String regex = "([01]?[0-9]|2[0-3]):[0-5][0-9]";
 	 
-	public String convertTime(String time, Boolean format) throws Exception {
-		
-		try {			
-			String[] splitTime = time.split(":");
-			int hour = Integer.parseInt(splitTime[0]);
-			int minute = Integer.parseInt(splitTime[1]);
-		
-		
-		return validateSentence(hour, minute, time);
+	public String convertTime(String time) throws Exception {
+		boolean hourIsValid = validadeHour(time);
+		try {	
+			if(hourIsValid) {
+				
+				String[] splitTime = time.split(":");
+				int hour = Integer.parseInt(splitTime[0]);
+				int minute = Integer.parseInt(splitTime[1]);
+				return validateSentence(hour, minute, time);
+			}
+			return "Invalid hour!";
+			
 		} catch (Exception e) {
 			throw new Exception(e);
 		}
 	}
 	
-	private String validateSentence(int hour, int minute, String hourComplete) {
+	private static String validateSentence(int hour, int minute, String hourComplete) {
 
 		if(minute>59 || hour>23)return "invalid hour";
+		String toHour = hour == 23? numNames[0] : numNames[hour+1];
 		String minutes = (60 - minute) >1? " minutes ": " minute ";
-		String sentence = minute == 0 ? numNames[hour]+ OCLOCK : minute >= 1 && minute <= 30 ? numNames[minute]+ minutes + PAST + numNames[hour] : numNames[60 - minute]+ minutes + TO + numNames[hour+1];
-		if(minute == 15 || minute == 45 || minute == 30) {			
-			sentence = minute == 15 ? " quarter " + PAST + numNames[hour] : minute == 45 ? " quarter " + TO + numNames[hour+1] : " half " + PAST + numNames[hour];	
+		
+		String sentence = minute == 0 ?
+				numNames[hour]+ OCLOCK : minute >= 1 && minute <= 30 ?
+						numNames[minute]+ minutes + PAST + numNames[hour] : numNames[60 - minute]+ minutes + TO + toHour;
+		
+				if(minute == 15 || minute == 45 || minute == 30) {	
+			sentence = minute == 15 ? 
+					" quarter " + PAST + numNames[hour] : minute == 45 ?
+							" quarter " + TO + toHour : " half " + PAST + numNames[hour];	
 		}
 
 		return hourComplete + " ->" + sentence;
 	}
+	
+	private static boolean validadeHour(String time) {
+		Pattern p = Pattern.compile(regex);
+		Matcher m = p.matcher(time);
+		return m.matches();
+	}
+
 }
